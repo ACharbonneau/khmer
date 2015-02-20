@@ -684,36 +684,37 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     SubsetPartition * subset;
-} khmer_KSubsetPartitionObject;
+} khmer_KSubsetPartition_Object;
 
 typedef struct {
     PyObject_HEAD
     Hashbits * hashbits;
 } khmer_KHashbitsObject;
 
-static void khmer_subset_dealloc(PyObject *);
+static void khmer_subset_dealloc(khmer_KSubsetPartition_Object * obj);
 
-static PyTypeObject khmer_KSubsetPartitionType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "KSubset", sizeof(khmer_KSubsetPartitionObject),
-    0,
-    khmer_subset_dealloc,   /*tp_dealloc*/
-    0,              /*tp_print*/
-    0,              /*tp_getattr*/
-    0,              /*tp_setattr*/
-    0,              /*tp_compare*/
-    0,              /*tp_repr*/
-    0,              /*tp_as_number*/
-    0,              /*tp_as_sequence*/
-    0,              /*tp_as_mapping*/
-    0,              /*tp_hash */
-    0,              /*tp_call*/
-    0,              /*tp_str*/
-    0,              /*tp_getattro*/
-    0,              /*tp_setattro*/
-    0,              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT,     /*tp_flags*/
-    "subset object",           /* tp_doc */
+static PyTypeObject khmer_KSubsetPartition_Type = {
+    PyVarObject_HEAD_INIT(NULL, 0)         /* init & ob_size */
+    "khmer.KSubsetPartition",              /* tp_name */
+    sizeof(khmer_KSubsetPartition_Object), /* tp_basicsize */
+    0,                                     /* tp_itemsize */
+    (destructor)khmer_subset_dealloc,      /*tp_dealloc*/
+    0,                                     /*tp_print*/
+    0,                                     /*tp_getattr*/
+    0,                                     /*tp_setattr*/
+    0,                                     /*tp_compare*/
+    0,                                     /*tp_repr*/
+    0,                                     /*tp_as_number*/
+    0,                                     /*tp_as_sequence*/
+    0,                                     /*tp_as_mapping*/
+    0,                                     /*tp_hash */
+    0,                                     /*tp_call*/
+    0,                                     /*tp_str*/
+    0,                                     /*tp_getattro*/
+    0,                                     /*tp_setattro*/
+    0,                                     /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT,                    /*tp_flags*/
+    "subset object",                       /* tp_doc */
 };
 
 typedef struct {
@@ -1527,8 +1528,8 @@ static PyObject * hash_do_subset_partition_with_abundance(PyObject * self,
         return NULL;
     }
 
-    khmer_KSubsetPartitionObject * subset_obj = (khmer_KSubsetPartitionObject *)\
-            PyObject_New(khmer_KSubsetPartitionObject, &khmer_KSubsetPartitionType);
+    khmer_KSubsetPartition_Object * subset_obj = (khmer_KSubsetPartition_Object *)\
+            PyObject_New(khmer_KSubsetPartition_Object, &khmer_KSubsetPartition_Type);
 
     if (subset_obj == NULL) {
         delete subset_p;
@@ -3445,10 +3446,10 @@ static int khmer_hashbits_init(khmer_KHashbitsObject * self, PyObject * args,
 
 ////////////////////////////////////////////////////////////////////////////
 
-static PyObject * subset_count_partitions(PyObject * self,
-        PyObject * args)
+static
+PyObject *
+subset_count_partitions(khmer_KSubsetPartition_Object * me, PyObject * args)
 {
-    khmer_KSubsetPartitionObject * me = (khmer_KSubsetPartitionObject *) self;
     SubsetPartition * subset_p = me->subset;
 
     if (!PyArg_ParseTuple(args, "")) {
@@ -3462,10 +3463,10 @@ static PyObject * subset_count_partitions(PyObject * self,
                          (Py_ssize_t) n_unassigned);
 }
 
-static PyObject * subset_report_on_partitions(PyObject * self,
-        PyObject * args)
+static
+PyObject *
+subset_report_on_partitions(khmer_KSubsetPartition_Object * me, PyObject * args)
 {
-    khmer_KSubsetPartitionObject * me = (khmer_KSubsetPartitionObject *) self;
     SubsetPartition * subset_p = me->subset;
 
     if (!PyArg_ParseTuple(args, "")) {
@@ -3477,10 +3478,10 @@ static PyObject * subset_report_on_partitions(PyObject * self,
     Py_RETURN_NONE;
 }
 
-static PyObject * subset_compare_partitions(PyObject * self,
-        PyObject * args)
+static
+PyObject *
+subset_compare_partitions(khmer_KSubsetPartition_Object * me, PyObject * args)
 {
-    khmer_KSubsetPartitionObject * me = (khmer_KSubsetPartitionObject *) self;
     SubsetPartition * subset1_p = me->subset;
 
     PyObject * subset2_obj = NULL;
@@ -3491,8 +3492,8 @@ static PyObject * subset_compare_partitions(PyObject * self,
         return NULL;
     }
 
-    khmer_KSubsetPartitionObject *other = (khmer_KSubsetPartitionObject *)
-                                          subset2_obj;
+    khmer_KSubsetPartition_Object *other = (khmer_KSubsetPartition_Object *)
+                                           subset2_obj;
     SubsetPartition * subset2_p = other->subset;
 
     unsigned int n_only1 = 0, n_only2 = 0, n_shared = 0;
@@ -3502,10 +3503,11 @@ static PyObject * subset_compare_partitions(PyObject * self,
     return Py_BuildValue("III", n_only1, n_only2, n_shared);
 }
 
-static PyObject * subset_partition_size_distribution(PyObject * self,
-        PyObject * args)
+static
+PyObject *
+subset_partition_size_distribution(khmer_KSubsetPartition_Object * me,
+                                   PyObject * args)
 {
-    khmer_KSubsetPartitionObject * me = (khmer_KSubsetPartitionObject *) self;
     SubsetPartition * subset_p = me->subset;
 
     if (!PyArg_ParseTuple(args, "")) {
@@ -3540,10 +3542,10 @@ static PyObject * subset_partition_size_distribution(PyObject * self,
     return ret;
 }
 
-static PyObject * subset_partition_sizes(PyObject * self,
-        PyObject * args)
+static
+PyObject *
+subset_partition_sizes(khmer_KSubsetPartition_Object * me, PyObject * args)
 {
-    khmer_KSubsetPartitionObject * me = (khmer_KSubsetPartitionObject *) self;
     SubsetPartition * subset_p = me->subset;
 
     unsigned int min_size = 0;
@@ -3586,10 +3588,11 @@ static PyObject * subset_partition_sizes(PyObject * self,
     return ret;
 }
 
-static PyObject * subset_partition_average_coverages(PyObject * self,
-        PyObject * args)
+static
+PyObject *
+subset_partition_average_coverages(khmer_KSubsetPartition_Object * me,
+                                   PyObject * args)
 {
-    khmer_KSubsetPartitionObject * me = (khmer_KSubsetPartitionObject *) self;
     SubsetPartition * subset_p = me->subset;
 
     khmer_KCountingHashObject * counting_o;
@@ -3621,12 +3624,30 @@ static PyObject * subset_partition_average_coverages(PyObject * self,
 }
 
 static PyMethodDef khmer_subset_methods[] = {
-    { "count_partitions", subset_count_partitions, METH_VARARGS, "" },
-    { "report_on_partitions", subset_report_on_partitions, METH_VARARGS, "" },
-    { "compare_partitions", subset_compare_partitions, METH_VARARGS, "" },
-    { "partition_size_distribution", subset_partition_size_distribution, METH_VARARGS, "" },
-    { "partition_sizes", subset_partition_sizes, METH_VARARGS, "" },
-    { "partition_average_coverages", subset_partition_average_coverages, METH_VARARGS, "" },
+    { "count_partitions",
+      (PyCFunction)subset_count_partitions,
+      METH_VARARGS,
+      "" },
+    { "report_on_partitions",
+      (PyCFunction)subset_report_on_partitions,
+      METH_VARARGS,
+      "" },
+    { "compare_partitions",
+      (PyCFunction)subset_compare_partitions,
+      METH_VARARGS,
+      "" },
+    { "partition_size_distribution",
+      (PyCFunction)subset_partition_size_distribution,
+      METH_VARARGS,
+      "" },
+    { "partition_sizes",
+      (PyCFunction)subset_partition_sizes,
+      METH_VARARGS,
+      "" },
+    { "partition_average_coverages",
+      (PyCFunction)subset_partition_average_coverages,
+      METH_VARARGS,
+      "" },
     {NULL, NULL, 0, NULL}           /* sentinel */
 };
 
@@ -4284,13 +4305,11 @@ static void khmer_hashbits_dealloc(PyObject* obj)
 // khmer_subset_dealloc -- clean up a hashbits object.
 //
 
-static void khmer_subset_dealloc(PyObject* self)
+static void khmer_subset_dealloc(khmer_KSubsetPartition_Object * obj)
 {
-    khmer_KSubsetPartitionObject * obj = (khmer_KSubsetPartitionObject *) self;
     delete obj->subset;
     obj->subset = NULL;
-
-    PyObject_Del((PyObject *) obj);
+    Py_TYPE(obj)->tp_free((PyObject*)obj);
 }
 
 
@@ -4685,8 +4704,8 @@ init_khmer(void)
         return;
     }
 
-    khmer_KSubsetPartitionType.tp_methods = khmer_subset_methods;
-    if (PyType_Ready(&khmer_KSubsetPartitionType) < 0) {
+    khmer_KSubsetPartition_Type.tp_methods = khmer_subset_methods;
+    if (PyType_Ready(&khmer_KSubsetPartition_Type) < 0) {
         return;
     }
 
